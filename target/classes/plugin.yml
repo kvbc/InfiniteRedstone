@@ -1,0 +1,4 @@
+name: InfiniteRedstone
+version: '1.0'
+main: io.github.kvbc.infiniteredstone.InfiniteRedstone
+api-version: 1.19
