@@ -13,7 +13,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public final class InfiniteRedstone extends JavaPlugin implements Listener {
@@ -30,6 +29,9 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
     }
 
     private void refresh_redstone () {
+        if (redstone_locations.isEmpty())
+            return;
+
         BlockRedstoneEvent.getHandlerList().unregister((Listener)this);
 
         List<Location> redstone_locationsCopy = new ArrayList<Location>(redstone_locations);
@@ -51,12 +53,13 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable () {
+        getServer().getPluginManager().registerEvents(this, this);
         new BukkitRunnable() {
             @Override
             public void run() {
                 refresh_redstone();
             }
-        }.runTaskTimer(this, 0, 0);
+        }.runTaskTimer(this, 0, 10);
     }
 
     @EventHandler
