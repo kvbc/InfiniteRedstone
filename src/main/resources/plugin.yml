@@ -1,4 +1,9 @@
 name: InfiniteRedstone
 version: '${project.version}'
 main: io.github.kvbc.infiniteredstone.InfiniteRedstone
+
+description: Redstone with infinite range
 api-version: 1.19
+load: POSTWORLD
+author: kvbc / mrsot2
+website: https://www.spigotmc.org/resources/infinite-redstone.102739
