@@ -62,6 +62,7 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
     public void redstoneEvent (BlockRedstoneEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.REDSTONE_WIRE) {
+            // TODO: trigger if (event.getNewCurrent() == 1)
             if ((event.getNewCurrent() > 0) && (event.getNewCurrent() < 15)) {
                 event.setNewCurrent(15);
                 if(!redstone_locations.contains(block.getLocation()))
