@@ -32,34 +32,30 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
         if (redstone_locations.isEmpty())
             return;
 
-        BlockRedstoneEvent.getHandlerList().unregister((Listener)this);
-
         List<Location> redstone_locationsCopy = new ArrayList<Location>(redstone_locations);
         redstone_locations.clear();
 
         for (Location location : redstone_locationsCopy) {
             Block block = get_overworld().getBlockAt(location);
-            block.setType(Material.REDSTONE_WIRE);
+            block.setType(Material.AIR);
         }
-
-        getServer().getPluginManager().registerEvents(this, this);
 
         for (Location location : redstone_locationsCopy) {
             Block block = get_overworld().getBlockAt(location);
-            block.setType(Material.AIR);
             block.setType(Material.REDSTONE_WIRE);
         }
     }
 
     @Override
     public void onEnable () {
+        saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
         new BukkitRunnable() {
             @Override
             public void run() {
                 refresh_redstone();
             }
-        }.runTaskTimer(this, 0, 10);
+        }.runTaskTimer(this, 0, getConfig().getLong("refresh_delay"));
     }
 
     @EventHandler
