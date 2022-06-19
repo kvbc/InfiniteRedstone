@@ -2,6 +2,7 @@ package io.github.kvbc.infiniteredstone;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,28 +11,40 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class InfiniteRedstone extends JavaPlugin implements Listener {
-    private final long REDSTONE_REFRESH_DELAY = 0; // in ticks
-    private final List<Location> locations = new ArrayList<Location>();
+    private List<Location> redstone_locations = new ArrayList<Location>();
+
+    @Nullable
+    private World get_overworld () {
+        for (World world : getServer().getWorlds()) {
+            if (world.getEnvironment() == World.Environment.NORMAL) {
+                return world;
+            }
+        }
+        return null;
+    }
 
     private void refresh_redstone () {
         BlockRedstoneEvent.getHandlerList().unregister((Listener)this);
 
-        List<Location> locationsCopy = new ArrayList<Location>(locations);
-        locations.clear();
+        List<Location> redstone_locationsCopy = new ArrayList<Location>(redstone_locations);
+        redstone_locations.clear();
 
-        for (Location location : locationsCopy) {
-            Block block = getServer().getWorld("world").getBlockAt(location);
+        for (Location location : redstone_locationsCopy) {
+            Block block = get_overworld().getBlockAt(location);
             block.setType(Material.REDSTONE_WIRE);
         }
 
         getServer().getPluginManager().registerEvents(this, this);
 
-        for (Location location : locationsCopy) {
-            Block block = getServer().getWorld("world").getBlockAt(location);
+        for (Location location : redstone_locationsCopy) {
+            Block block = get_overworld().getBlockAt(location);
+            block.setType(Material.AIR);
             block.setType(Material.REDSTONE_WIRE);
         }
     }
@@ -43,16 +56,17 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
             public void run() {
                 refresh_redstone();
             }
-        }.runTaskTimer(this, 0, REDSTONE_REFRESH_DELAY);
+        }.runTaskTimer(this, 0, 0);
     }
 
     @EventHandler
     public void redstoneEvent (BlockRedstoneEvent event) {
-        if (event.getBlock().getType() == Material.REDSTONE_WIRE) {
+        Block block = event.getBlock();
+        if (block.getType() == Material.REDSTONE_WIRE) {
             if ((event.getNewCurrent() > 0) && (event.getNewCurrent() < 15)) {
                 event.setNewCurrent(15);
-                if(!locations.contains(event.getBlock().getLocation()))
-                    locations.add(0, event.getBlock().getLocation());
+                if(!redstone_locations.contains(block.getLocation()))
+                    redstone_locations.add(block.getLocation());
             }
         }
     }
@@ -61,8 +75,7 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
     public void onBlockBreak (BlockBreakEvent event) {
         Block block = event.getBlock();
         if (block.getType() == Material.REDSTONE_WIRE) {
-            if (locations.contains(block.getLocation()))
-                locations.remove(block.getLocation());
+            redstone_locations.remove(block.getLocation());
         }
     }
 }
