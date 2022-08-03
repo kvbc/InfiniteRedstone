@@ -11,22 +11,12 @@ import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class InfiniteRedstone extends JavaPlugin implements Listener {
     private List<Location> redstone_locations = new ArrayList<Location>();
-
-    @Nullable
-    private World get_overworld () {
-        for (World world : getServer().getWorlds()) {
-            if (world.getEnvironment() == World.Environment.NORMAL) {
-                return world;
-            }
-        }
-        return null;
-    }
+    private World overworld = null;
 
     private void refresh_redstone () {
         if (redstone_locations.isEmpty())
@@ -36,18 +26,25 @@ public final class InfiniteRedstone extends JavaPlugin implements Listener {
         redstone_locations.clear();
 
         for (Location location : redstone_locationsCopy) {
-            Block block = get_overworld().getBlockAt(location);
+            Block block = overworld.getBlockAt(location);
             block.setType(Material.AIR);
         }
 
         for (Location location : redstone_locationsCopy) {
-            Block block = get_overworld().getBlockAt(location);
+            Block block = overworld.getBlockAt(location);
             block.setType(Material.REDSTONE_WIRE);
         }
     }
 
     @Override
     public void onEnable () {
+        for (World world : getServer().getWorlds()) {
+            if (world.getEnvironment() == World.Environment.NORMAL) {
+                overworld = world;
+                break;
+            }
+        }
+
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(this, this);
         new BukkitRunnable() {
